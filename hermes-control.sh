@@ -463,7 +463,7 @@ launch_web_console() {
     return
   fi
 
-  if [[ ! -f "$root_dir/web_console/requirements.txt" || ! -f "$root_dir/web_console/app.py" || ! -f "$root_dir/web_console/templates/index.html" || ! -f "$root_dir/web_console/static/app.js" ]]; then
+  if [[ ! -f "$root_dir/web_console/backend/requirements.txt" || ! -f "$root_dir/web_console/backend/app.py" ]]; then
     info "未检测到完整 Web 控制台文件，开始拉取线上版本。"
     if ! fetch_web_console_files "$root_dir"; then
       error "Web 控制台文件拉取失败，请检查网络后重试。"
@@ -476,7 +476,12 @@ launch_web_console() {
     chmod +x "$script_path" >/dev/null 2>&1 || true
     info "正在执行：$script_path"
     printf '\n'
-    "$script_path"
+    if ! "$script_path"; then
+      local rc=$?
+      error "Web 控制台启动失败（退出码：$rc）。"
+      info "可直接运行命令查看完整报错：bash \"$script_path\""
+      pause_screen
+    fi
     return
   fi
 
@@ -500,7 +505,7 @@ launch_web_console() {
     return
   fi
 
-  if ! "$venv_py" -m pip install -r "$root_dir/web_console/requirements.txt"; then
+  if ! "$venv_py" -m pip install -r "$root_dir/web_console/backend/requirements.txt"; then
     error "依赖安装失败，请检查网络或 Python 环境。"
     pause_screen
     return
@@ -508,7 +513,7 @@ launch_web_console() {
 
   info "启动成功后请访问：http://127.0.0.1:15678"
   printf '\n'
-  "$venv_py" -m uvicorn web_console.app:app --host 0.0.0.0 --port 15678 --app-dir "$root_dir"
+  "$venv_py" -m uvicorn web_console.backend.app:app --host 0.0.0.0 --port 15678 --app-dir "$root_dir"
 }
 
 download_file_to_path() {
@@ -534,9 +539,9 @@ fetch_web_console_files() {
   local -a files=(
     "run-web-console.sh"
     "run-web-console.ps1"
-    "web_console/__init__.py"
-    "web_console/requirements.txt"
-    "web_console/app.py"
+    "web_console/backend/__init__.py"
+    "web_console/backend/requirements.txt"
+    "web_console/backend/app.py"
     "web_console/templates/index.html"
     "web_console/static/app.css"
     "web_console/static/app.js"

@@ -512,6 +512,29 @@ launch_web_console() {
   fi
 
   info "启动成功后请访问：http://127.0.0.1:15678"
+  local frontend_dir="$root_dir/web_console/frontend"
+  local frontend_lock="$frontend_dir/package-lock.json"
+  local installed_frontend_lock="$frontend_dir/node_modules/.package-lock.json"
+  if ! has_cmd npm; then
+    error "Node.js and npm are required to build the React frontend."
+    pause_screen
+    return
+  fi
+
+  if [[ ! -d "$frontend_dir/node_modules" || ! -f "$installed_frontend_lock" || "$frontend_lock" -nt "$installed_frontend_lock" ]]; then
+    if ! (cd "$frontend_dir" && npm ci); then
+      error "Failed to install React frontend dependencies."
+      pause_screen
+      return
+    fi
+  fi
+
+  if ! (cd "$frontend_dir" && npm run build); then
+    error "Failed to build the React frontend."
+    pause_screen
+    return
+  fi
+
   printf '\n'
   "$venv_py" -m uvicorn web_console.backend.app:app --host 0.0.0.0 --port 15678 --app-dir "$root_dir"
 }

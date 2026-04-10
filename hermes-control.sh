@@ -5,6 +5,7 @@ set -u
 APP_NAME="Hermes 控制中心"
 APP_VERSION="1.0.0"
 INSTALL_URL="https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh"
+WEB_CONSOLE_RAW_BASE="https://raw.githubusercontent.com/Hoinor/hermes-control/main"
 DEFAULT_HERMES_BIN="$HOME/.hermes/hermes-agent/venv/bin/hermes"
 
 # 终端颜色与样式
@@ -452,21 +453,6 @@ launch_web_console() {
   print_banner
   info "准备启动 Web 控制台（端口 15678）。"
 
-  if [[ -x "$script_path" ]]; then
-    info "正在执行：$script_path"
-    printf '\n'
-    "$script_path"
-    return
-  fi
-
-  if [[ -f "$script_path" ]]; then
-    chmod +x "$script_path" >/dev/null 2>&1 || true
-    info "正在执行：$script_path"
-    printf '\n'
-    "$script_path"
-    return
-  fi
-
   if has_cmd python3; then
     python_bin="python3"
   elif has_cmd python; then
@@ -477,9 +463,20 @@ launch_web_console() {
     return
   fi
 
-  if [[ ! -f "$root_dir/web_console/requirements.txt" || ! -f "$root_dir/web_console/app.py" ]]; then
-    error "未检测到 Web 控制台文件（web_console 目录缺失）。"
-    pause_screen
+  if [[ ! -f "$root_dir/web_console/requirements.txt" || ! -f "$root_dir/web_console/app.py" || ! -f "$root_dir/web_console/templates/index.html" || ! -f "$root_dir/web_console/static/app.js" ]]; then
+    info "未检测到完整 Web 控制台文件，开始拉取线上版本。"
+    if ! fetch_web_console_files "$root_dir"; then
+      error "Web 控制台文件拉取失败，请检查网络后重试。"
+      pause_screen
+      return
+    fi
+  fi
+
+  if [[ -f "$script_path" ]]; then
+    chmod +x "$script_path" >/dev/null 2>&1 || true
+    info "正在执行：$script_path"
+    printf '\n'
+    "$script_path"
     return
   fi
 
@@ -493,6 +490,57 @@ launch_web_console() {
   info "启动成功后请访问：http://127.0.0.1:15678"
   printf '\n'
   "$python_bin" -m uvicorn web_console.app:app --host 0.0.0.0 --port 15678 --app-dir "$root_dir"
+}
+
+download_file_to_path() {
+  local url=$1
+  local output_path=$2
+
+  if has_cmd curl; then
+    curl -fsSL "$url" -o "$output_path"
+    return $?
+  fi
+
+  if has_cmd wget; then
+    wget -qO "$output_path" "$url"
+    return $?
+  fi
+
+  return 127
+}
+
+fetch_web_console_files() {
+  local root_dir=$1
+  local file output_path url
+  local -a files=(
+    "run-web-console.sh"
+    "run-web-console.ps1"
+    "web_console/__init__.py"
+    "web_console/requirements.txt"
+    "web_console/app.py"
+    "web_console/templates/index.html"
+    "web_console/static/app.css"
+    "web_console/static/app.js"
+  )
+
+  if ! has_cmd curl && ! has_cmd wget; then
+    error "当前环境缺少 curl/wget，无法自动拉取 Web 控制台文件。"
+    return 1
+  fi
+
+  for file in "${files[@]}"; do
+    output_path="$root_dir/$file"
+    url="$WEB_CONSOLE_RAW_BASE/$file"
+    mkdir -p "$(dirname "$output_path")"
+    if ! download_file_to_path "$url" "$output_path"; then
+      error "下载失败：$url"
+      return 1
+    fi
+  done
+
+  chmod +x "$root_dir/run-web-console.sh" >/dev/null 2>&1 || true
+  success "Web 控制台文件已同步到本地。"
+  return 0
 }
 
 remove_hermes_launchers() {

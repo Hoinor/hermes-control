@@ -445,7 +445,7 @@ add_model_provider() {
 }
 
 launch_web_console() {
-  local root_dir script_path python_bin
+  local root_dir script_path python_bin venv_dir venv_py
   root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
   script_path="$root_dir/run-web-console.sh"
 
@@ -481,7 +481,26 @@ launch_web_console() {
   fi
 
   warn "未找到 run-web-console.sh，将使用内置命令启动。"
-  if ! "$python_bin" -m pip install -r "$root_dir/web_console/requirements.txt"; then
+  venv_dir="$root_dir/.web-console-venv"
+  if [[ ! -x "$venv_dir/bin/python" && ! -x "$venv_dir/Scripts/python.exe" ]]; then
+    if ! "$python_bin" -m venv "$venv_dir"; then
+      error "创建虚拟环境失败，请确认已安装 Python venv 组件。"
+      pause_screen
+      return
+    fi
+  fi
+
+  if [[ -x "$venv_dir/bin/python" ]]; then
+    venv_py="$venv_dir/bin/python"
+  elif [[ -x "$venv_dir/Scripts/python.exe" ]]; then
+    venv_py="$venv_dir/Scripts/python.exe"
+  else
+    error "虚拟环境创建成功但未找到 Python 可执行文件。"
+    pause_screen
+    return
+  fi
+
+  if ! "$venv_py" -m pip install -r "$root_dir/web_console/requirements.txt"; then
     error "依赖安装失败，请检查网络或 Python 环境。"
     pause_screen
     return
@@ -489,7 +508,7 @@ launch_web_console() {
 
   info "启动成功后请访问：http://127.0.0.1:15678"
   printf '\n'
-  "$python_bin" -m uvicorn web_console.app:app --host 0.0.0.0 --port 15678 --app-dir "$root_dir"
+  "$venv_py" -m uvicorn web_console.app:app --host 0.0.0.0 --port 15678 --app-dir "$root_dir"
 }
 
 download_file_to_path() {

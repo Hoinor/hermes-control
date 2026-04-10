@@ -229,7 +229,7 @@ print_dashboard() {
   printf '  %b[2]%b  启动网关             %b[6]%b  初始化向导           %b[10]%b  环境自检\n' "$GREEN" "$RESET" "$GREEN" "$RESET" "$GREEN" "$RESET"
   printf '  %b[3]%b  停止网关             %b[7]%b  启动对话界面         %b[11]%b  卸载 Hermes\n' "$GREEN" "$RESET" "$GREEN" "$RESET" "$GREEN" "$RESET"
   printf '  %b[4]%b  重启网关             %b[8]%b  更新 Hermes          %b[12]%b  一键添加模型提供商\n' "$GREEN" "$RESET" "$GREEN" "$RESET" "$GREEN" "$RESET"
-  printf '  %b[0]%b  退出\n' "$GREEN" "$RESET"
+  printf '  %b[13]%b 启动 Web 控制台      %b[0]%b  退出\n' "$GREEN" "$RESET" "$GREEN" "$RESET"
   printf '\n'
   center_text "$(style "$DIM" "在一个控制面板里完成安装、排障、聊天和日常维护")"
 
@@ -441,6 +441,58 @@ add_model_provider() {
   info "如需进一步调整，可继续进入“模型管理中心”查看。"
 
   pause_screen
+}
+
+launch_web_console() {
+  local root_dir script_path python_bin
+  root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  script_path="$root_dir/run-web-console.sh"
+
+  clear
+  print_banner
+  info "准备启动 Web 控制台（端口 15678）。"
+
+  if [[ -x "$script_path" ]]; then
+    info "正在执行：$script_path"
+    printf '\n'
+    "$script_path"
+    return
+  fi
+
+  if [[ -f "$script_path" ]]; then
+    chmod +x "$script_path" >/dev/null 2>&1 || true
+    info "正在执行：$script_path"
+    printf '\n'
+    "$script_path"
+    return
+  fi
+
+  if has_cmd python3; then
+    python_bin="python3"
+  elif has_cmd python; then
+    python_bin="python"
+  else
+    error "未检测到 Python，请先安装 Python 3。"
+    pause_screen
+    return
+  fi
+
+  if [[ ! -f "$root_dir/web_console/requirements.txt" || ! -f "$root_dir/web_console/app.py" ]]; then
+    error "未检测到 Web 控制台文件（web_console 目录缺失）。"
+    pause_screen
+    return
+  fi
+
+  warn "未找到 run-web-console.sh，将使用内置命令启动。"
+  if ! "$python_bin" -m pip install -r "$root_dir/web_console/requirements.txt"; then
+    error "依赖安装失败，请检查网络或 Python 环境。"
+    pause_screen
+    return
+  fi
+
+  info "启动成功后请访问：http://127.0.0.1:15678"
+  printf '\n'
+  "$python_bin" -m uvicorn web_console.app:app --host 0.0.0.0 --port 15678 --app-dir "$root_dir"
 }
 
 remove_hermes_launchers() {
@@ -828,9 +880,10 @@ handle_choice() {
     10) system_check ;;
     11) uninstall_hermes ;;
     12) add_model_provider ;;
+    13) launch_web_console ;;
     0|q|Q|exit) exit_app ;;
     *)
-      warn "无效选项，请输入 0 到 12。"
+      warn "无效选项，请输入 0 到 13。"
       sleep 1
       ;;
   esac

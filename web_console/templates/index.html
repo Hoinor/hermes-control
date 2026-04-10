@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hermes Web Console</title>
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+  <div class="ambient"></div>
+
+  <div id="authGate" class="auth-gate">
+    <div class="auth-card">
+      <h1>Hermes Web Console</h1>
+      <p id="authHint">Loading authentication state...</p>
+
+      <form id="setupForm" class="auth-form hidden">
+        <label for="setupPassword">Create admin password</label>
+        <input id="setupPassword" type="password" minlength="8" required autocomplete="new-password">
+        <button type="submit">Initialize and Enter</button>
+      </form>
+
+      <form id="loginForm" class="auth-form hidden">
+        <label for="loginPassword">Password</label>
+        <input id="loginPassword" type="password" minlength="8" required autocomplete="current-password">
+        <button type="submit">Login</button>
+      </form>
+
+      <p id="authError" class="error-text"></p>
+    </div>
+  </div>
+
+  <div id="appRoot" class="app-root hidden">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark"></div>
+        <div>
+          <h1>Hermes Console</h1>
+          <p>Port 15678</p>
+        </div>
+      </div>
+      <div class="topbar-status">
+        <span id="statusHermes" class="chip">Hermes: --</span>
+        <span id="statusGateway" class="chip">Gateway: --</span>
+        <span id="statusSave" class="chip muted">Auto-save idle</span>
+        <button id="logoutBtn" class="danger ghost">Logout</button>
+      </div>
+    </header>
+
+    <nav class="tabs">
+      <button class="tab active" data-tab="dashboard">Dashboard</button>
+      <button class="tab" data-tab="services">Service</button>
+      <button class="tab" data-tab="models">Model Config</button>
+      <button class="tab" data-tab="logs">Logs</button>
+      <button class="tab" data-tab="chat">Chat</button>
+    </nav>
+
+    <main>
+      <section id="dashboard" class="panel active">
+        <div class="grid dashboard-grid">
+          <article class="card metric">
+            <h3>System Snapshot</h3>
+            <ul id="systemSnapshot"></ul>
+          </article>
+          <article class="card metric">
+            <h3>Hermes Snapshot</h3>
+            <ul id="hermesSnapshot"></ul>
+          </article>
+          <article class="card metric">
+            <h3>Quick Actions</h3>
+            <div class="button-group">
+              <button data-action="gateway_start" class="action-btn">Start Gateway</button>
+              <button data-action="gateway_stop" class="action-btn">Stop Gateway</button>
+              <button data-action="gateway_restart" class="action-btn">Restart Gateway</button>
+              <button data-action="upgrade" class="action-btn">One-click Upgrade</button>
+            </div>
+            <pre id="quickActionOutput" class="console"></pre>
+          </article>
+        </div>
+      </section>
+
+      <section id="services" class="panel">
+        <div class="grid service-grid">
+          <article class="card">
+            <h3>Service Management</h3>
+            <div class="button-group">
+              <button data-action="version_check" class="action-btn">Version Check</button>
+              <button data-action="gateway_install" class="action-btn">Install Gateway</button>
+              <button data-action="gateway_uninstall" class="action-btn">Uninstall Gateway</button>
+              <button data-action="gateway_start" class="action-btn">Start</button>
+              <button data-action="gateway_stop" class="action-btn">Stop</button>
+              <button data-action="gateway_restart" class="action-btn">Restart</button>
+              <button data-action="upgrade" class="action-btn">Upgrade</button>
+            </div>
+            <pre id="serviceOutput" class="console"></pre>
+          </article>
+
+          <article class="card">
+            <h3>Config Backup / Restore</h3>
+            <div class="button-row">
+              <button id="backupNowBtn" class="action-btn">Create Backup</button>
+              <button id="refreshBackupsBtn" class="action-btn ghost">Refresh</button>
+            </div>
+            <div class="restore-row">
+              <select id="backupSelect"></select>
+              <button id="restoreBtn" class="danger">Restore Backup</button>
+            </div>
+            <pre id="backupOutput" class="console"></pre>
+          </article>
+        </div>
+      </section>
+
+      <section id="models" class="panel">
+        <div class="grid model-grid">
+          <article class="card provider-list-card">
+            <div class="card-header">
+              <h3>Providers</h3>
+              <div class="button-row">
+                <button id="addProviderBtn" class="action-btn">Add</button>
+                <button id="undoBtn" class="ghost">Undo</button>
+              </div>
+            </div>
+            <ul id="providerList" class="sortable-list"></ul>
+          </article>
+
+          <article class="card provider-editor-card">
+            <h3>Provider Editor</h3>
+            <div id="providerEditor" class="editor hidden">
+              <label>Key<input id="providerKey" type="text"></label>
+              <label>Name<input id="providerName" type="text"></label>
+              <label>API Base URL<input id="providerApi" type="text" placeholder="https://api.openai.com/v1"></label>
+              <label>API Key<input id="providerApiKey" type="password"></label>
+              <label>Default Model<input id="providerDefaultModel" type="text"></label>
+
+              <div class="card-header">
+                <h4>Models</h4>
+                <button id="addModelBtn" class="action-btn">Add Model</button>
+              </div>
+              <ul id="modelList" class="sortable-list"></ul>
+
+              <div class="button-row">
+                <button id="deleteProviderBtn" class="danger">Delete Provider</button>
+                <button id="testCurrentProviderBtn" class="action-btn ghost">Test This Provider</button>
+              </div>
+            </div>
+            <p id="noProviderHint" class="muted-text">Select or create a provider to edit.</p>
+          </article>
+
+          <article class="card active-model-card">
+            <h3>Active Model Target</h3>
+            <label>Provider Marker<input id="activeProvider" type="text" placeholder="custom"></label>
+            <label>Base URL<input id="activeBaseUrl" type="text"></label>
+            <label>API Key<input id="activeApiKey" type="password"></label>
+            <label>Default Model<input id="activeDefaultModel" type="text"></label>
+            <div class="button-row">
+              <button id="testAllModelsBtn" class="action-btn">Batch Connectivity Test</button>
+            </div>
+            <div id="testResults" class="test-results"></div>
+          </article>
+        </div>
+
+        <article class="card raw-editor-card">
+          <div class="card-header">
+            <h3>Raw YAML Editor</h3>
+            <button id="saveRawBtn" class="action-btn ghost">Save Raw YAML</button>
+          </div>
+          <textarea id="rawYamlEditor" spellcheck="false"></textarea>
+        </article>
+      </section>
+
+      <section id="logs" class="panel">
+        <article class="card">
+          <div class="card-header">
+            <h3>Log Viewer</h3>
+            <div class="button-row">
+              <select id="logSourceSelect"></select>
+              <input id="logKeywordInput" type="text" placeholder="keyword filter">
+              <button id="logRefreshBtn" class="action-btn">Refresh</button>
+              <label class="inline-switch">
+                <input id="logAutoRefresh" type="checkbox" checked>
+                <span>Auto</span>
+              </label>
+            </div>
+          </div>
+          <pre id="logOutput" class="console log-console"></pre>
+        </article>
+      </section>
+
+      <section id="chat" class="panel">
+        <article class="card chat-card">
+          <div class="card-header">
+            <h3>Streaming Chat</h3>
+            <div class="button-row">
+              <select id="chatProviderSelect"></select>
+              <input id="chatModelInput" type="text" placeholder="model override (optional)">
+            </div>
+          </div>
+          <div id="chatMessages" class="chat-messages"></div>
+          <form id="chatForm" class="chat-form">
+            <textarea id="chatInput" required placeholder="Type your question..."></textarea>
+            <button type="submit" class="action-btn">Send</button>
+          </form>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

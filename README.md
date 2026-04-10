@@ -28,6 +28,37 @@ wget -O hermes-control.sh https://raw.githubusercontent.com/Hoinor/hermes-contro
 
 脚本启动后会显示控制面板，可直接输入编号执行对应操作。
 
+## 网页控制台（可视化）
+
+项目内新增了 Web 控制台（默认端口 `15678`），支持：
+
+- 仪表盘：系统概览、Hermes/Gateway 实时状态、快捷操作
+- 服务管理：启停控制、版本检测、一键升级、Gateway 安装/卸载、配置备份与还原
+- 模型配置：多服务商增删改查、模型拖拽排序、自动保存与撤销
+- 模型测试：批量连通性测试与延迟检测
+- 日志查看：多日志源实时查看与关键词过滤
+- 聊天：流式响应与 Markdown 渲染
+- 首次启动需要设置管理员密码，后续登录后可访问控制台
+
+### 启动方式（Linux/macOS）
+
+```bash
+chmod +x run-web-console.sh
+./run-web-console.sh
+```
+
+### 启动方式（Windows PowerShell）
+
+```powershell
+.\run-web-console.ps1
+```
+
+启动后访问：
+
+```text
+http://127.0.0.1:15678
+```
+
 ## 菜单说明
 
 | 编号 | 功能                                    |
@@ -81,6 +112,15 @@ wget -O hermes-control.sh https://raw.githubusercontent.com/Hoinor/hermes-contro
 
 ```text
 .
+├── web_console/
+│   ├── app.py
+│   ├── requirements.txt
+│   ├── templates/index.html
+│   └── static/
+│       ├── app.css
+│       └── app.js
+├── run-web-console.sh
+├── run-web-console.ps1
 ├── hermes-control.sh
 └── README.md
 ```

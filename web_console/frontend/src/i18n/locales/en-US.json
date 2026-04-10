@@ -1,0 +1,124 @@
+{
+  "app": {
+    "title": "Hermes Console"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "services": "Services",
+    "modelConfig": "Model Config",
+    "logs": "Logs",
+    "chat": "Chat"
+  },
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "refresh": "Refresh",
+    "yes": "yes",
+    "no": "no",
+    "unknown": "--",
+    "auto": "Auto",
+    "running": "running",
+    "stopped": "stopped"
+  },
+  "auth": {
+    "loading": "Loading authentication state...",
+    "firstLaunch": "First launch detected. Set an admin password to continue.",
+    "authRequired": "Authentication required.",
+    "createPassword": "Create admin password",
+    "initializeEnter": "Initialize and Enter",
+    "password": "Password",
+    "login": "Login",
+    "logout": "Logout"
+  },
+  "header": {
+    "port": "Port 15678",
+    "language": "Language"
+  },
+  "status": {
+    "hermesMissing": "Hermes: missing",
+    "hermesInstalled": "Hermes: {{version}}",
+    "gateway": "Gateway: {{status}}",
+    "saveIdle": "Auto-save idle",
+    "savePending": "Auto-save pending...",
+    "saveSuccess": "Saved {{time}}",
+    "saveFailed": "Save failed: {{message}}"
+  },
+  "dashboard": {
+    "systemSnapshot": "System Snapshot",
+    "hermesSnapshot": "Hermes Snapshot",
+    "quickActions": "Quick Actions",
+    "startGateway": "Start Gateway",
+    "stopGateway": "Stop Gateway",
+    "restartGateway": "Restart Gateway",
+    "oneClickUpgrade": "One-click Upgrade",
+    "os": "OS",
+    "host": "Host",
+    "cpu": "CPU",
+    "memory": "Memory",
+    "disk": "Disk",
+    "uptime": "Uptime",
+    "installed": "Installed",
+    "version": "Version",
+    "binary": "Binary",
+    "gatewayInstalled": "Gateway Installed",
+    "gatewayRuntime": "Gateway Runtime",
+    "statusSource": "Status Source"
+  },
+  "services": {
+    "serviceManagement": "Service Management",
+    "versionCheck": "Version Check",
+    "installGateway": "Install Gateway",
+    "uninstallGateway": "Uninstall Gateway",
+    "start": "Start",
+    "stop": "Stop",
+    "restart": "Restart",
+    "upgrade": "Upgrade",
+    "configBackupRestore": "Config Backup / Restore",
+    "createBackup": "Create Backup",
+    "restoreBackup": "Restore Backup",
+    "noBackups": "No backups"
+  },
+  "models": {
+    "providers": "Providers",
+    "providerEditor": "Provider Editor",
+    "activeModelTarget": "Active Model Target",
+    "rawYamlEditor": "Raw YAML Editor",
+    "saveRawYaml": "Save Raw YAML",
+    "addProvider": "Add",
+    "providerKeyPlaceholder": "new-provider",
+    "addModel": "Add Model",
+    "deleteProvider": "Delete Provider",
+    "testProvider": "Test This Provider",
+    "batchConnectivityTest": "Batch Connectivity Test",
+    "selectOrCreateProvider": "Select or create a provider to edit.",
+    "key": "Key",
+    "name": "Name",
+    "apiBaseUrl": "API Base URL",
+    "apiKey": "API Key",
+    "defaultModel": "Default Model",
+    "models": "Models",
+    "providerMarker": "Provider Marker",
+    "baseUrl": "Base URL",
+    "newModelPlaceholder": "model-name",
+    "providerExists": "Provider key already exists",
+    "confirmDeleteProvider": "Delete provider {{key}}?",
+    "testAllLoading": "Testing all model targets...",
+    "testProviderLoading": "Testing current provider..."
+  },
+  "logs": {
+    "logViewer": "Log Viewer",
+    "keywordFilter": "keyword filter",
+    "noLogSource": "No log source"
+  },
+  "chat": {
+    "streamingChat": "Streaming Chat",
+    "modelOverride": "model override (optional)",
+    "typeQuestion": "Type your question...",
+    "send": "Send",
+    "auto": "Auto"
+  },
+  "actions": {
+    "running": "Running {{action}} ...",
+    "error": "[error] {{message}}"
+  }
+}

@@ -13,5 +13,5 @@ if (-not (Test-Path $venvPy)) {
   python -m venv $venvDir
 }
 
-& $venvPy -m pip install -r ".\web_console\requirements.txt"
-& $venvPy -m uvicorn web_console.app:app --host 0.0.0.0 --port 15678 --app-dir "$root"
+& $venvPy -m pip install -r ".\web_console\backend\requirements.txt"
+& $venvPy -m uvicorn web_console.backend.app:app --host 0.0.0.0 --port 15678 --app-dir "$root"

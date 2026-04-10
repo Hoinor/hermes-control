@@ -29,5 +29,5 @@ else
   exit 1
 fi
 
-"$VENV_PY" -m pip install -r "$ROOT_DIR/web_console/requirements.txt"
-exec "$VENV_PY" -m uvicorn web_console.app:app --host 0.0.0.0 --port 15678 --app-dir "$ROOT_DIR"
+"$VENV_PY" -m pip install -r "$ROOT_DIR/web_console/backend/requirements.txt"
+exec "$VENV_PY" -m uvicorn web_console.backend.app:app --host 0.0.0.0 --port 15678 --app-dir "$ROOT_DIR"
